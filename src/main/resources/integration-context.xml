@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <int:gateway service-interface="com.designthink.integration.gateway.MessagingGateway"
+                 default-request-channel="inputChannel">
+
+    </int:gateway>
+
+    <int:channel id="inputChannel">
+        <int:dispatcher failover="true" load-balancer="round-robin"></int:dispatcher>
+    </int:channel>
+
+    <bean class="com.designthink.integration.service.MessageEnricher" id="messageEnricher"/>
+
+    <bean class="com.designthink.integration.service.UppercaseMessageEnricher" id="uppercaseMessageEnricher"/>
+
+    <int:service-activator
+            order="2"
+            input-channel="inputChannel"
+            ref="messageEnricher" method="enrichMessage">
+    </int:service-activator>
+
+    <int:service-activator
+            order="1"
+            input-channel="inputChannel"
+            ref="uppercaseMessageEnricher" method="enrichMessage">
+    </int:service-activator>
+
+</beans>
